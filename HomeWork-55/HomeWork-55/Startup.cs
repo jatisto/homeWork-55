@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using HomeWork_55.Data;
+using HomeWork_55.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -34,11 +35,36 @@ namespace HomeWork_55
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlite(
-                    Configuration.GetConnectionString("DefaultConnection")));
-            services.AddDefaultIdentity<IdentityUser>()
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+//            services.AddDbContext<ApplicationDbContext>(options =>
+//                options.UseSqlite(
+//                    Configuration.GetConnectionString("DefaultConnection")));
+
+            string connection = Configuration.GetConnectionString("DefaultConnection");
+
+            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connection));
+
+            services.AddDefaultIdentity<IdentityUser>(options =>
+                {
+                    options.Password.RequireDigit = false;
+                    options.Password.RequiredLength = 3;
+                    options.Password.RequireNonAlphanumeric = false;
+                    options.Password.RequireUppercase = false;
+                    options.Password.RequireLowercase = false;
+                })
                 .AddEntityFrameworkStores<ApplicationDbContext>();
+
+
+//            services.AddIdentity<ApplicationUser, IdentityRole>(
+//                    options => {
+//                        options.Password.RequireDigit = false;
+//                        options.Password.RequiredLength = 3;
+//                        options.Password.RequireNonAlphanumeric = false;
+//                        options.Password.RequireUppercase = false;
+//                        options.Password.RequireLowercase = false;
+//                    })
+//                .AddEntityFrameworkStores<ApplicationDbContext>()
+//                .AddDefaultTokenProviders();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
@@ -62,6 +88,7 @@ namespace HomeWork_55
             app.UseCookiePolicy();
 
             app.UseAuthentication();
+
 
             app.UseMvc(routes =>
             {
